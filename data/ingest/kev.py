@@ -30,7 +30,7 @@ def fetch_kev():
 
 
 def store_kev(df: pd.DataFrame):
-    # SQLite can't store lists — convert any list/dict columns to JSON strings
+    #convert any list/dict columns to JSON strings
     for col in df.columns:
         if df[col].apply(lambda x: isinstance(x, (list, dict))).any():
             df[col] = df[col].apply(lambda x: json.dumps(x) if isinstance(x, (list, dict)) else x)

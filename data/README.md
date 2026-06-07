@@ -9,7 +9,7 @@ Contains the SQLite database and ingest scripts for all vulnerability intelligen
 | Table | Source | Description |
 |-------|--------|-------------|
 | `golden_image` | `SDDS_Project/golden_image.csv` | The golden image (example of an input for the tool) |
-| `kev` | CISA KEV live feed | CISA Known exploited vulnerabilities |
+| `kev` | CISA KEV live feed | CISA Known Exploited Vulnerabilities |
 | `nvd_cves` | NIST National Vulnerability Database | CVE detail and CVSS scores |
 | `blogs` | RSS feeds | security blog posts |
 
