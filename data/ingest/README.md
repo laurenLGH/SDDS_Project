@@ -5,12 +5,11 @@ One script per data source. Each fetches its source, normalizes/cleans the data,
 ## Scripts
 
 ### `golden_image.py`
-- **File:** `data/golden_image.csv`
+- **Source:** `golden_image.csv` (Created by our team as example)
 - **Notes:** This is the Golden Image for which we will be finding cyber threat data. This is an example of an input for overall final product. 
 
 ### `kev.py`
 - **Source:** `https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json`
-- **File:** `data/kev.py'
 - **Notes:** This is CISA's catalog of Known Exploited Vulnerabilities. When ingesting this data, all CVEs (Common Vulnerabilities and Exposures) ever added to KEV since Nov 2021 are returned
 
 ### `nvd.py`
