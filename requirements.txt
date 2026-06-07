@@ -1,0 +1,7 @@
+pandas
+requests
+feedparser
+beautifulsoup4
+flask
+.env
+.venv
