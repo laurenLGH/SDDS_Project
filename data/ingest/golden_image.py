@@ -9,7 +9,6 @@ GOLDEN_IMAGE_PATH = Path('golden_image.csv')
 def fetch_golden_image():
     df = pd.read_csv(GOLDEN_IMAGE_PATH)
     df.columns = df.columns.str.strip()
-    print(f'Golden Image: loaded {len(df)} entries')
     return df
 
 

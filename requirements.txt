@@ -3,5 +3,7 @@ requests
 feedparser
 beautifulsoup4
 flask
-.env
-.venv
+rapidfuzz
+anthropic
+ipykernel
+
