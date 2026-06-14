@@ -3,7 +3,7 @@ import pandas as pd
 from pathlib import Path
 
 DB_PATH           = Path('data/corpus.db')
-GOLDEN_IMAGE_PATH = Path('golden_image.csv')
+GOLDEN_IMAGE_PATH = Path('data/golden_image.csv')
 
 
 def fetch_golden_image():

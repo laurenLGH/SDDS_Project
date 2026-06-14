@@ -6,4 +6,5 @@ flask
 rapidfuzz
 anthropic
 ipykernel
+spacy
 
