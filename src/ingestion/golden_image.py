@@ -1,9 +1,10 @@
 import sqlite3
-import pandas as pd
+import sys
 from pathlib import Path
+import pandas as pd
 
-DB_PATH           = Path('data/corpus.db')
-GOLDEN_IMAGE_PATH = Path('data/golden_image.csv')
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import DB_PATH, GOLDEN_IMAGE_PATH
 
 
 def fetch_golden_image():

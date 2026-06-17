@@ -1,10 +1,12 @@
 import sqlite3
+import sys
 import json
 import requests
 import pandas as pd
 from pathlib import Path
 
-DB_PATH  = Path('data/corpus.db')
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import DB_PATH
 KEV_URL  = 'https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json'
 
 
