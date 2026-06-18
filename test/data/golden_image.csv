@@ -1,0 +1,3 @@
+image_type,category,software_name,vendor,criticality,notes,approved_version
+Corporate Workstation,Operating System,Windows 11 Enterprise,Microsoft,Critical,Test OS baseline,23H2
+Server,Database,Microsoft SQL Server,Microsoft,Critical,Test database,2022
