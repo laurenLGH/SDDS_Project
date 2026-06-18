@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CTI Data Aggregation</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { padding: 10px 16px; text-align: left; border: 1px solid #ccc; }
+    </style>
+    <script>
+        var data = {{ results | tojson if results else '[]' }};
+
+        function populateDropdown() {
+            if (data.length === 0) return;
+
+            select = document.getElementById("software_select");
+            seen = {};
+            for (i = 0; i < data.length; i++) {
+                name = data[i].gi_software_name;
+                if (!seen[name]) {
+                    seen[name] = true;
+                    opt = document.createElement("option");
+                    opt.value = name;
+                    opt.text = name;
+                    select.appendChild(opt);
+                }
+            }
+
+            document.getElementById("upload_form").style.display = "none";
+            document.getElementById("results_section").style.display = "block";
+            filterTable();
+        }
+
+        function filterTable() {
+            selected = document.getElementById("software_select").value;
+            rows = "";
+            count = 0;
+
+            sorted = data.slice().sort(function(a, b) { return b.composite_score - a.composite_score; });
+
+            for (i = 0; i < sorted.length; i++) {
+                r = sorted[i];
+                if (selected === "all" || r.gi_software_name === selected) {
+                    inKev = r.in_kev ? "Yes" : "No";
+                    rows = rows + "<tr><td>" + r.cve_id + "</td><td>" + r.date_published + "</td><td>" + r.cve_description + "</td><td>" + r.gi_software_name + "</td><td>" + r.gi_vendor + "</td><td>" + r.cvss_score + "</td><td>" + inKev + "</td><td>" + r.composite_score + "</td></tr>";
+                    count = count + 1;
+                }
+            }
+
+            document.getElementById("results_body").innerHTML = rows;
+            document.getElementById("result_count").innerHTML = "Showing <b>" + count + "</b> results";
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Welcome to the Cyber Threar Intellegence Data Summary!</h2>
+    <h3>Upload your golden image as a csv file below to begin!</h3>
+    <h4>Relevant CTI data from the NIST National Vulnerability Database and CISA Known Exploited Vulnerabilities will be returned!</h4>
+
+    <form id="upload_form" action="/run" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv">
+        <button type="submit" style="margin-left: 8px;">Find CTI Data!</button>
+    </form>
+
+   
+    <div id="results_section" style="display:none; margin-top: 30px;"></div>
+
+        <label for="software_select">Filter by software:</label>
+        <select id="software_select" onchange="filterTable()">
+            <option value="all">All</option>
+        </select>
+
+        <p id="result_count"></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>CVE ID</th>
+                    <th>Date Published</th>
+                    <th>Description</th>
+                    <th>Matched Software</th>
+                    <th>Matched Vendor</th>
+                    <th>CVSS Score</th>
+                    <th>In KEV</th>
+                    <th>Composite Score</th>
+                </tr>
+            </thead>
+            <tbody id="results_body"></tbody>
+        </table>
+
+    </div>
+
+    <script>
+        populateDropdown();
+    </script>
+
+</body>
+</html>

@@ -1,18 +1,12 @@
+import sys
 import sqlite3
 import feedparser
 import pandas as pd
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-
-#using RSS to scrape xml from blogs - web scraping blocked on some sites
-
-DB_PATH = Path('data/corpus.db')
-
-#Setting this variable as number of days in past to look for blogs 
-# TODO take this setting out of individual files (set accross search)
-
-DAYS_BACK = 20
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import DB_PATH, BLOGS_DAYS_BACK as DAYS_BACK
 
 #All blogs to check - Can add more here or remove
 BLOG_SOURCES = [

@@ -1,19 +1,11 @@
 import re
+import sys
 import sqlite3
 import pandas as pd
 from pathlib import Path
 
-DB_PATH = Path("./data/corpus.db")
-
-STOP_WORDS = {
-    "and", "or", "the", "for", "in", "of", "a", "an", "&",
-    "enterprise", "professional", "standard",
-    "business", "corporate", "community",
-    "advanced", "premium", "plus", "pro",
-    "edition", "suite", "apps", "application", "software", "solution",
-    "service", "platform","client",
-    "server", "desktop",
-}
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import DB_PATH, STOP_WORDS
 
 
 def meaningful_tokens(name: str):
@@ -26,8 +18,8 @@ def tokenize_description(text: str):
     return set(tokens)
 
 
-def match_nvd(conn):
-    gi_df  = pd.read_sql("SELECT * FROM golden_image", conn)
+def match_nvd(gi_df, conn):
+    # gi_df  = pd.read_sql("SELECT * FROM golden_image", conn)
     nvd_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
 
     nvd_df["desc_tokens"] = nvd_df["description"].fillna("").apply(tokenize_description)
@@ -44,6 +36,7 @@ def match_nvd(conn):
                 "gi_criticality":   gi["criticality"],
                 "approved_version": gi["approved_version"],
                 "cve_id":           nvd["cve_id"],
+                "date_published":   nvd["date_published"],
                 "cvss_score":       nvd["cvss_score"],
                 "cvss_severity":    nvd["cvss_severity"],
                 "cve_description":  nvd["description"],
@@ -71,11 +64,15 @@ def match_nvd_to_kev(conn, nvd_matches_df):
 
 
 def save(nvd_kev, conn):
-    nvd_kev.to_sql("silver_nvd_kev", conn, if_exists="replace", index=False)
+    nvd_kev.drop_duplicates(subset=["cve_id", "gi_software_name"]).to_sql(
+        "silver_nvd_kev", conn, if_exists="replace", index=False
+    )
 
 
 if __name__ == "__main__":
+    import pandas as pd
     with sqlite3.connect(DB_PATH) as conn:
-        nvd_matches = match_nvd(conn)
+        gi_df = pd.read_sql("SELECT * FROM golden_image", conn)
+        nvd_matches = match_nvd(gi_df, conn)
         nvd_kev_df = match_nvd_to_kev(conn, nvd_matches)
         save(nvd_kev_df, conn)

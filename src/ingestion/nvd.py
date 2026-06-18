@@ -1,14 +1,14 @@
 import sqlite3
+import sys
 import json
 import requests
 import pandas as pd
 from pathlib import Path
 
-DB_PATH  = Path('data/corpus.db')
-NVD_BASE = 'https://services.nvd.nist.gov/rest/json/cves/2.0'
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from config import DB_PATH, NVD_DAYS_BACK as DAYS_BACK
 
-#set number of days in the past to pull NVD data
-DAYS_BACK = 10
+NVD_BASE = 'https://services.nvd.nist.gov/rest/json/cves/2.0'
 
 
 def get_nvd(days_back: int = DAYS_BACK) -> pd.DataFrame:
