@@ -19,9 +19,8 @@ def tokenize_description(text: str):
 
 
 def match_nvd(gi_df, conn):
-    # gi_df  = pd.read_sql("SELECT * FROM golden_image", conn)
-    nvd_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
 
+    nvd_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
     nvd_df["desc_tokens"] = nvd_df["description"].fillna("").apply(tokenize_description)
 
     #NVD token search
@@ -70,7 +69,6 @@ def save(nvd_kev, conn):
 
 
 if __name__ == "__main__":
-    import pandas as pd
     with sqlite3.connect(DB_PATH) as conn:
         gi_df = pd.read_sql("SELECT * FROM golden_image", conn)
         nvd_matches = match_nvd(gi_df, conn)

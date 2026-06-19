@@ -7,5 +7,5 @@ rapidfuzz
 anthropic
 ipykernel
 spacy
-flask
 python-dotenv
+gunicorn
