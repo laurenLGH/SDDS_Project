@@ -9,7 +9,7 @@ from config import DB_PATH, CRITICALITY_WEIGHT as criticality_weight, KEV_MULTIP
 
 def make_gold_table(silver):
     silver["composite_score"] = (
-        silver["cvss_score"].fillna(1)
+        silver["cvss_score"].fillna(1) # Need to explain / change for future
         * silver["in_kev"].astype(int).map(KEV_MULTIPLIER)
         * silver["gi_criticality"].map(criticality_weight)
     ).round(3)
