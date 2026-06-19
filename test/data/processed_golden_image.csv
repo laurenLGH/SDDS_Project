@@ -1,0 +1,52 @@
+image_type,category,software_name,vendor,criticality,notes,approved_version
+Corporate Workstation,Operating System,Windows 11 Enterprise,Microsoft,Critical,Standard enterprise OS baseline,23H2
+Corporate Workstation,Browser,"Microsoft Edge, Chrome","Microsoft, Google",High,Primary approved browser,125.0.6422.112
+Corporate Workstation,Browser,Microsoft Edge,Microsoft,High,Secondary approved browser,125.0.2535.51
+Corporate Workstation,Productivity,Microsoft 365 Apps,Microsoft,Medium,Word Excel PowerPoint Outlook,2405
+Corporate Workstation,PDF Reader,Adobe Acrobat Reader,Adobe,Medium,Approved PDF viewer,24.002.20759
+Corporate Workstation,Communication,Microsoft Teams,Microsoft,Medium,Corporate communication platform,24102
+Corporate Workstation,Security,CrowdStrike Falcon Sensor,CrowdStrike,Critical,EDR agent - mandatory,7.16
+Corporate Workstation,VPN,Cisco AnyConnect,Cisco,High,Remote access VPN client,5.1.6
+Corporate Workstation,Security,Qualys Cloud Agent,Qualys,High,Vulnerability scanning agent,4.6.0
+Corporate Workstation,Security,Microsoft Defender Antivirus,Microsoft,Critical,Built-in AV - policy managed,4.18.24040
+Corporate Workstation,Runtime,Microsoft .NET Framework,Microsoft,Medium,Required for enterprise apps,4.8.1
+Corporate Workstation,Runtime,Microsoft Visual C++ Redistributable,Microsoft,Low,Required runtime dependency,14.40.33810
+Developer Workstation,Operating System,Windows 11 Enterprise,Microsoft,Critical,Standard enterprise OS baseline,23H2
+Developer Workstation,Browser,"Microsoft Edge, Chrome","Microsoft, Google",High,Primary approved browser,125.0.6422.112
+Developer Workstation,IDE,Visual Studio Code,Microsoft,Medium,Primary developer IDE,1.90.0
+Developer Workstation,IDE,Visual Studio 2022,Microsoft,Medium,Full IDE for .NET development,17.10.0
+Developer Workstation,Runtime,Python,Python Software Foundation,High,Approved scripting runtime,3.11.9
+Developer Workstation,Runtime,Node.js,OpenJS Foundation,High,LTS runtime for JS development,20.14.0
+Developer Workstation,Container,Docker Desktop,Docker,High,Container development platform,4.30.0
+Developer Workstation,Security,CrowdStrike Falcon Sensor,CrowdStrike,Critical,EDR agent - mandatory,7.16
+Developer Workstation,Git,Git for Windows,Git,Medium,Version control client,2.45.1
+Developer Workstation,VPN,Cisco AnyConnect,Cisco,High,Remote access VPN client,5.1.6
+Developer Workstation,Runtime,Java JDK,Oracle,Medium,LTS JDK for Java development,21.0.3
+Developer Workstation,Package Manager,npm,OpenJS Foundation,Low,Node package manager,10.8.1
+Developer Workstation,Security,Qualys Cloud Agent,Qualys,High,Vulnerability scanning agent,4.6.0
+Developer Workstation,Security,Microsoft Defender Antivirus,Microsoft,Critical,Built-in AV - policy managed,4.18.24040
+Server,Operating System,Windows Server 2022,Microsoft,Critical,Standard server OS,21H2
+Server,Operating System,Red Hat Enterprise Linux,Red Hat,Critical,Linux server baseline,9.4
+Server,Web Server,Microsoft IIS,Microsoft,High,Windows web server,10.0.20348
+Server,Web Server,Apache HTTP Server,Apache Software Foundation,High,Linux web server,2.4.59
+Server,Database,Microsoft SQL Server,Microsoft,Critical,Primary RDBMS,2022 CU12
+Server,Database,PostgreSQL,PostgreSQL Global Development Group,High,Open-source RDBMS,16.3
+Server,Security,CrowdStrike Falcon Sensor,CrowdStrike,Critical,EDR agent - mandatory,7.16
+Server,Security,Qualys Cloud Agent,Qualys,High,Vulnerability scanning agent,4.6.0
+Server,Runtime,Microsoft .NET Framework,Microsoft,Medium,Required for server apps,4.8.1
+Server,Runtime,Java JRE,Oracle,Medium,Runtime for Java applications,21.0.3
+Server,Monitoring,Splunk Universal Forwarder,Splunk,High,Log forwarding to SIEM,9.2.1
+Server,Backup,Veeam Agent,Veeam,Medium,Server backup agent,6.1.2
+Server,Security,Microsoft Defender for Endpoint,Microsoft,Critical,Server AV and EDR,4.18.24040
+Administrative Workstation,Operating System,Windows 11 Enterprise,Microsoft,Critical,Hardened admin OS baseline,23H2
+Administrative Workstation,Browser,"Microsoft Edge, Chrome","Microsoft, Google",High,Only approved browser for admin systems,125.0.2535.51
+Administrative Workstation,Productivity,Microsoft 365 Apps,Microsoft,Medium,Word Excel Outlook only,2405
+Administrative Workstation,Security,CrowdStrike Falcon Sensor,CrowdStrike,Critical,EDR agent - mandatory,7.16
+Administrative Workstation,Security,Qualys Cloud Agent,Qualys,High,Vulnerability scanning agent,4.6.0
+Administrative Workstation,Security,Microsoft Defender Antivirus,Microsoft,Critical,Built-in AV - policy managed,4.18.24040
+Administrative Workstation,PAM,CyberArk Endpoint Privilege Manager,CyberArk,Critical,Privileged access management,23.11
+Administrative Workstation,MFA,Duo Authentication,Duo Security (Cisco),Critical,MFA enforcement for admin logins,7.0.1
+Administrative Workstation,VPN,Cisco AnyConnect,Cisco,High,Remote access VPN,5.1.6
+Administrative Workstation,Remote Admin,Windows Remote Server Administration Tools,Microsoft,High,Server management toolset,10.0.22621
+Administrative Workstation,Monitoring,Splunk Universal Forwarder,Splunk,High,Log forwarding to SIEM,9.2.1
+Administrative Workstation,Runtime,Microsoft .NET Framework,Microsoft,Low,Required for admin tools,4.8.1

@@ -2,15 +2,12 @@ import sqlite3
 import pandas as pd
 from pathlib import Path
 import pytest
-
+from conftest import TEST_DB_PATH
 # Test against the actual file but use a test database
 from src.ingestion.golden_image import fetch_golden_image, store_golden_image
 
-DB_PATH = Path("test/data/test_corpus.db")
-
-
 def test_fetch_golden_image_returns_dataframe():
-    """Verify fetch_golden_image returns a pandas DataFrame"""
+    """Verify fetch_golden_image returns a pandas DataFrame""" 
     df = fetch_golden_image()
     assert isinstance(df, pd.DataFrame)
 
@@ -38,7 +35,6 @@ def test_fetch_golden_image_has_data():
     df = fetch_golden_image()
     assert len(df) > 0, "Golden image should contain records"
 
-
 def test_fetch_golden_image_criticality_values():
     """Validate criticality field contains expected values"""
     df = fetch_golden_image()
@@ -48,29 +44,27 @@ def test_fetch_golden_image_criticality_values():
         f"Invalid criticality values: {actual_criticality - valid_criticality}"
 
 
-def test_store_golden_image_creates_table(test_db_connection):
+def test_store_golden_image_creates_table():
     """Verify store_golden_image creates the database table"""
     df = fetch_golden_image()
     
-    # Temporarily update DB_PATH
-    original_db_path = Path("src/ingestion/golden_image.py").read_text().split("DB_PATH")[1].split("=")[1].strip().strip("'\"")
+    # Use the TEST_DB_PATH constant
+    store_golden_image(df, db_path=TEST_DB_PATH)
     
-    # Store to test DB
-    with sqlite3.connect(test_db_connection) as conn:
-        df.to_sql("golden_image", conn, if_exists="replace", index=False)
-    
-    cursor = test_db_connection.cursor()
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='golden_image'")
-    assert cursor.fetchone() is not None
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='golden_image'")
+        assert cursor.fetchone() is not None
 
-
-def test_store_golden_image_data_integrity(test_db_connection):
+def test_store_golden_image_data_integrity():
     """Ensure data is stored correctly with same row count"""
     df = fetch_golden_image()
     
-    # Store to test DB
-    with sqlite3.connect(test_db_connection) as conn:
-        df.to_sql("golden_image", conn, if_exists="replace", index=False)
+    # Use the TEST_DB_PATH constant
+    store_golden_image(df, db_path=TEST_DB_PATH)
     
-    result_df = pd.read_sql("SELECT * FROM golden_image", test_db_connection)
-    assert len(result_df) == len(df), "Row count mismatch after storing golden image"
+    # Use a fresh connection for reading
+    with sqlite3.connect(TEST_DB_PATH) as conn:
+        result_df = pd.read_sql("SELECT * FROM golden_image", conn)
+        assert len(result_df) == len(df), "Row count mismatch after storing golden image"

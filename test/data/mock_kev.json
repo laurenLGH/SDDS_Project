@@ -10,6 +10,17 @@
       "requiredAction": "Apply updates",
       "dueDate": "2023-12-01",
       "notes": "Test vulnerability"
-    }
+    },
+    {
+      "cveID": "CVE-2023-5678",
+      "vendorProject": "Adobe",
+      "product": "Acrobat Reader",
+      "vulnerabilityName": "PDF Parser Vulnerability",
+      "dateAdded": "2023-11-20",
+      "shortDescription": "Heap buffer overflow",
+      "requiredAction": "Update to latest version",
+      "dueDate": "2023-12-05",
+      "notes": "Known exploit in wild"
+  }
   ]
 }

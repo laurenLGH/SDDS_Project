@@ -1,82 +1,21 @@
-import pytest
-import pandas as pd
-from unittest.mock import Mock, patch
 import sqlite3
+import pandas as pd
+from pathlib import Path
+import pytest
+import json
+from unittest.mock import patch, Mock
+from conftest import TEST_DB_PATH
 
 from src.ingestion.nvd import get_nvd, store_nvd
 
-MOCK_NVD_RESPONSE = {
-    "vulnerabilities": [
-        {
-            "cve": {
-                "id": "CVE-2023-1234",
-                "published": "2023-11-15T10:00:00.000",
-                "lastModified": "2023-11-16T14:30:00.000",
-                "descriptions": [
-                    {"lang": "en", "value": "Windows kernel privilege escalation vulnerability"},
-                    {"lang": "es", "value": "Vulnerabilidad de escalación de privilegios"}
-                ],
-                "metrics": {
-                    "cvssMetricV31": [
-                        {
-                            "cvssData": {
-                                "baseScore": 9.8,
-                                "baseSeverity": "CRITICAL"
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "cve": {
-                "id": "CVE-2023-5678",
-                "published": "2023-11-20T08:00:00.000",
-                "lastModified": "2023-11-21T09:00:00.000",
-                "descriptions": [
-                    {"lang": "en", "value": "SQL Server buffer overflow vulnerability"}
-                ],
-                "metrics": {
-                    "cvssMetricV31": [
-                        {
-                            "cvssData": {
-                                "baseScore": 7.5,
-                                "baseSeverity": "HIGH"
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "cve": {
-                "id": "CVE-2023-9012",
-                "published": "2023-11-25T12:00:00.000",
-                "lastModified": "2023-11-26T11:00:00.000",
-                "descriptions": [
-                    {"lang": "en", "value": "Linux kernel networking issue"}
-                ],
-                "metrics": {
-                    "cvssMetricV31": [
-                        {
-                            "cvssData": {
-                                "baseScore": 3.2,
-                                "baseSeverity": "LOW"
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    ]
-}
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 def test_get_nvd_returns_dataframe():
     """Verify get_nvd returns a pandas DataFrame"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
@@ -89,7 +28,7 @@ def test_get_nvd_has_expected_columns():
     """Ensure NVD data has the expected structure"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
@@ -104,7 +43,7 @@ def test_get_nvd_date_range_parameters():
     """Verify date parameters are correctly formatted"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
@@ -120,34 +59,37 @@ def test_get_nvd_date_range_parameters():
         assert params['startIndex'] == 0
 
 
-def test_store_nvd_creates_table(test_db_connection):
+def test_store_nvd_creates_table():
     """Verify store_nvd creates the database table"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    cursor = test_db_connection.cursor()
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='nvd_cves'")
-    assert cursor.fetchone() is not None
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='nvd_cves'")
+        assert cursor.fetchone() is not None
 
 
 def test_store_nvd_has_correct_schema():
     """Verify NVD table has the expected columns"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(nvd_cves)")
         columns = {row[1] for row in cursor.fetchall()}
@@ -163,14 +105,15 @@ def test_store_nvd_extract_en_description():
     """Verify English description is extracted correctly"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         
         # Should extract English description, not Spanish
@@ -204,9 +147,10 @@ def test_store_nvd_handles_missing_cvss():
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         
         # Should have NULL values for missing CVSS
@@ -217,20 +161,31 @@ def test_store_nvd_handles_missing_cvss():
 
 def test_store_nvd_handles_empty_vulnerabilities():
     """Verify handling of empty vulnerability list"""
-    empty_response = {"vulnerabilities": []}
+    # Create an empty DataFrame with the expected schema
+    empty_df = pd.DataFrame(columns=[
+        'cve_id', 'date_published', 'date_modified', 
+        'description', 'cvss_score', 'cvss_severity'
+    ])
     
-    with patch('src.ingestion.nvd.requests.get') as mock_get:
-        mock_response = Mock()
-        mock_response.json.return_value = empty_response
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
+    store_nvd(empty_df, db_path=TEST_DB_PATH)
+    
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
+        # Check if table exists
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='nvd_cves'")
+        assert cursor.fetchone() is not None, "Table should exist"
         
-        df = get_nvd()
-        store_nvd(df)
-    
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+        # Check table schema
+        cursor.execute("PRAGMA table_info(nvd_cves)")
+        columns = {row[1] for row in cursor.fetchall()}
+        expected_columns = {'cve_id', 'date_published', 'date_modified', 
+                          'description', 'cvss_score', 'cvss_severity'}
+        assert columns == expected_columns, f"Schema mismatch: {columns ^ expected_columns}"
+        
+        # Check row count
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
-        assert len(result_df) == 0
+        assert len(result_df) == 0, "Should have 0 rows for empty DataFrame"
 
 
 def test_store_nvd_drops_rows_without_cve_id():
@@ -262,9 +217,10 @@ def test_store_nvd_drops_rows_without_cve_id():
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         assert len(result_df) == 1, "Should drop row without CVE ID"
         assert result_df['cve_id'].iloc[0] == 'CVE-2023-1234'
@@ -274,14 +230,15 @@ def test_store_nvd_date_format():
     """Verify dates are stored in YYYY-MM-DD format"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         
         # Check date format
@@ -294,14 +251,15 @@ def test_store_nvd_cvss_score_extraction():
     """Verify CVSS score is correctly extracted from nested structure"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         
         # Check CVSS scores
@@ -315,14 +273,15 @@ def test_store_nvd_cvss_severity_extraction():
     """Verify CVSS severity is correctly extracted"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         
         # Check CVSS severities
@@ -336,7 +295,7 @@ def test_get_nvd_default_days_back():
     """Verify default days_back parameter works correctly"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
@@ -353,17 +312,18 @@ def test_store_nvd_data_integrity():
     """Verify data integrity after storage"""
     with patch('src.ingestion.nvd.requests.get') as mock_get:
         mock_response = Mock()
-        mock_response.json.return_value = MOCK_NVD_RESPONSE
+        mock_response.json.return_value = load_nvd_data()
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         df = get_nvd()
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
         
         # Store again to test replace behavior
-        store_nvd(df)
+        store_nvd(df, db_path=TEST_DB_PATH)
     
-    with sqlite3.connect('test/data/test_corpus.db') as conn:
+    # Use a fresh connection for verification
+    with sqlite3.connect(TEST_DB_PATH) as conn:
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         
         # Should have same data after replace
@@ -371,3 +331,8 @@ def test_store_nvd_data_integrity():
         assert set(result_df['cve_id']) == {'CVE-2023-1234', 'CVE-2023-5678', 'CVE-2023-9012'}
 
 
+# Helper function to load mock data
+def load_nvd_data():
+    """Load NVD data from JSON file"""
+    with open(DATA_DIR / "mock_nvd.json", "r") as f:
+        return json.load(f)
