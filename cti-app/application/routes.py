@@ -17,7 +17,7 @@ def run():
     gi_df = pd.read_csv(request.files["file"])
 
     response = requests.post(
-        "http://localhost:5001/api",
+        "https://cti-model-02ce2f4894b5.herokuapp.com/api",
         data=gi_df.to_json(orient="records"),
         headers={"Content-Type": "application/json"}
     )
