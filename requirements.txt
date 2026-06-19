@@ -4,8 +4,6 @@ feedparser
 beautifulsoup4
 flask
 rapidfuzz
-anthropic
 ipykernel
-spacy
 python-dotenv
 gunicorn
