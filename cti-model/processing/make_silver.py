@@ -1,11 +1,6 @@
 import re
-import sys
-import sqlite3
 import pandas as pd
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from config import DB_PATH, STOP_WORDS
+from config import STOP_WORDS
 
 
 def meaningful_tokens(name: str):
@@ -18,13 +13,9 @@ def tokenize_description(text: str):
     return set(tokens)
 
 
-def match_nvd(gi_df, conn):
-    # gi_df  = pd.read_sql("SELECT * FROM golden_image", conn)
-    nvd_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
-
+def match_nvd(gi_df, nvd_df):
     nvd_df["desc_tokens"] = nvd_df["description"].fillna("").apply(tokenize_description)
 
-    #NVD token search
     nvd_matches = []
     for _, gi in gi_df.iterrows():
         search_tokens = meaningful_tokens(gi["software_name"]) | {gi["vendor"].lower()}
@@ -42,14 +33,10 @@ def match_nvd(gi_df, conn):
                 "cve_description":  nvd["description"],
             })
 
-    nvd_matches = pd.DataFrame(nvd_matches)
-
-    return nvd_matches
+    return pd.DataFrame(nvd_matches)
 
 
-def match_nvd_to_kev(conn, nvd_matches_df):
-    kev_df = pd.read_sql("SELECT * FROM kev", conn)
-    #KEV enrichment via cve_id join
+def match_nvd_to_kev(nvd_matches_df, kev_df):
     kev_small = kev_df[["cve_id", "product", "vuln_name", "date_added",
                         "due_date", "description", "required_action",
                         "knownRansomwareCampaignUse"]].copy()
@@ -61,18 +48,3 @@ def match_nvd_to_kev(conn, nvd_matches_df):
     nvd_kev["in_kev"] = nvd_kev["kev_product"].notna()
 
     return nvd_kev
-
-
-def save(nvd_kev, conn):
-    nvd_kev.drop_duplicates(subset=["cve_id", "gi_software_name"]).to_sql(
-        "silver_nvd_kev", conn, if_exists="replace", index=False
-    )
-
-
-if __name__ == "__main__":
-    import pandas as pd
-    with sqlite3.connect(DB_PATH) as conn:
-        gi_df = pd.read_sql("SELECT * FROM golden_image", conn)
-        nvd_matches = match_nvd(gi_df, conn)
-        nvd_kev_df = match_nvd_to_kev(conn, nvd_matches)
-        save(nvd_kev_df, conn)
