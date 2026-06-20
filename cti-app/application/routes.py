@@ -22,5 +22,5 @@ def run():
         headers={"Content-Type": "application/json"}
     )
 
-    results = response.json()
-    return render_template("index.html", results=results)
+    data = response.json()
+    return render_template("index.html", results=data.get("cves", []), blogs=data.get("blogs", []))

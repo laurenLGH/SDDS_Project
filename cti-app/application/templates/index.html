@@ -3,22 +3,24 @@
 <head>
     <title>CTI Data Aggregation</title>
     <style>
-        table { border-collapse: collapse; width: 100%; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
         th, td { padding: 10px 16px; text-align: left; border: 1px solid #ccc; }
+        h3 { margin-top: 30px; }
     </style>
     <script>
-        var data = {{ results | tojson if results else '[]' }};
+        var cveData  = {{ results | tojson if results else '[]' }};
+        var blogData = {{ blogs | tojson if blogs else '[]' }};
 
         function populateDropdown() {
-            if (data.length === 0) return;
+            if (cveData.length === 0) return;
 
-            select = document.getElementById("software_select");
-            seen = {};
-            for (i = 0; i < data.length; i++) {
-                name = data[i].gi_software_name;
+            var select = document.getElementById("software_select");
+            var seen = {};
+            for (var i = 0; i < cveData.length; i++) {
+                var name = cveData[i].gi_software_name;
                 if (!seen[name]) {
                     seen[name] = true;
-                    opt = document.createElement("option");
+                    var opt = document.createElement("option");
                     opt.value = name;
                     opt.text = name;
                     select.appendChild(opt);
@@ -31,47 +33,58 @@
         }
 
         function filterTable() {
-            selected = document.getElementById("software_select").value;
-            rows = "";
-            count = 0;
+            var selected = document.getElementById("software_select").value;
 
-            sorted = data.slice().sort(function(a, b) { return b.composite_score - a.composite_score; });
-
-            for (i = 0; i < sorted.length; i++) {
-                r = sorted[i];
+            // filter CVE table
+            var rows = "";
+            var count = 0;
+            var sorted = cveData.slice().sort(function(a, b) { return b.composite_score - a.composite_score; });
+            for (var i = 0; i < sorted.length; i++) {
+                var r = sorted[i];
                 if (selected === "all" || r.gi_software_name === selected) {
-                    inKev = r.in_kev ? "Yes" : "No";
-                    rows = rows + "<tr><td>" + r.cve_id + "</td><td>" + r.date_published + "</td><td>" + r.cve_description + "</td><td>" + r.gi_software_name + "</td><td>" + r.gi_vendor + "</td><td>" + r.cvss_score + "</td><td>" + inKev + "</td><td>" + r.composite_score + "</td></tr>";
-                    count = count + 1;
+                    var inKev = r.in_kev ? "Yes" : "No";
+                    rows += "<tr><td>" + r.cve_id + "</td><td>" + r.date_published + "</td><td>" + r.cve_description + "</td><td>" + r.gi_software_name + "</td><td>" + r.gi_vendor + "</td><td>" + r.cvss_score + "</td><td>" + inKev + "</td><td>" + r.composite_score + "</td></tr>";
+                    count++;
                 }
             }
-
             document.getElementById("results_body").innerHTML = rows;
             document.getElementById("result_count").innerHTML = "Showing <b>" + count + "</b> results";
+
+            // filter blog table
+            var blogRows = "";
+            var blogCount = 0;
+            for (var j = 0; j < blogData.length; j++) {
+                var b = blogData[j];
+                if (selected === "all" || b.gi_software_name === selected) {
+                    blogRows += "<tr><td>" + b.date + "</td><td><a href='" + b.url + "' target='_blank'>" + b.title + "</a></td><td>" + b.source + "</td></tr>";
+                    blogCount++;
+                }
+            }
+            document.getElementById("blog_body").innerHTML = blogRows;
+            document.getElementById("blog_count").innerHTML = "Showing <b>" + blogCount + "</b> blogs";
         }
     </script>
 </head>
 <body>
 
-    <h2>Welcome to the Cyber Threar Intellegence Data Summary!</h2>
-    <h3>Upload your golden image as a csv file below to begin!</h3>
-    <h4>Relevant CTI data from the NIST National Vulnerability Database and CISA Known Exploited Vulnerabilities will be returned!</h4>
+    <h2>Welcome to the Cyber Threat Intelligence Data Summary!</h2>
+    <h3>Upload your golden image as a csv file below to begin</h3>
+    <h4>Relevant CTI data from the NIST National Vulnerability Database and CISA Known Exploited Vulnerabilities will be returned</h4>
 
     <form id="upload_form" action="/run" method="POST" enctype="multipart/form-data">
         <input type="file" name="file" accept=".csv">
-        <button type="submit" style="margin-left: 8px;">Find CTI Data!</button>
+        <button type="submit" style="margin-left: 8px;">Find CTI Data</button>
     </form>
 
-   
-    <div id="results_section" style="display:none; margin-top: 30px;"></div>
+    <div id="results_section" style="display:none; margin-top: 30px;">
 
         <label for="software_select">Filter by software:</label>
         <select id="software_select" onchange="filterTable()">
             <option value="all">All</option>
         </select>
 
+        <h3>Vulnerabilities</h3>
         <p id="result_count"></p>
-
         <table>
             <thead>
                 <tr>
@@ -86,6 +99,19 @@
                 </tr>
             </thead>
             <tbody id="results_body"></tbody>
+        </table>
+
+        <h3>Relevant Blog Posts</h3>
+        <p id="blog_count"></p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody id="blog_body"></tbody>
         </table>
 
     </div>
