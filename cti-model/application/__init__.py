@@ -1,19 +1,13 @@
-import sys
 import io
-import sqlite3
-from pathlib import Path
-from flask import Flask, request, Response, json
 import pandas as pd
-
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-from processing.make_silver import meaningful_tokens, tokenize_description, match_nvd_to_kev
+from flask import Flask, request, Response, json
+from config import NVD_CSV_PATH, KEV_CSV_PATH
+from processing.make_silver import meaningful_tokens, tokenize_description
 from processing.make_gold import make_gold_table
-from config import DB_PATH
 
 # load and pre-tokenize NVD and KEV data once at startup
-with sqlite3.connect(DB_PATH) as conn:
-    nvd_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
-    kev_df = pd.read_sql("SELECT * FROM kev", conn)
+nvd_df = pd.read_csv(NVD_CSV_PATH)
+kev_df = pd.read_csv(KEV_CSV_PATH)
 
 nvd_df["desc_tokens"] = nvd_df["description"].fillna("").apply(tokenize_description)
 

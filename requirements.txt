@@ -1,9 +1,0 @@
-pandas
-requests
-feedparser
-beautifulsoup4
-flask
-rapidfuzz
-ipykernel
-python-dotenv
-gunicorn

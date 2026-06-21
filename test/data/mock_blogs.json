@@ -1,0 +1,68 @@
+{
+  "blog_entries": [
+    {
+        "title": "Microsoft Security Update November",
+        "link": "https://www.microsoft.com/en-us/security/blog/2023/11/15/microsoft-security-update/",
+        "published_parsed": [2023, 11, 15, 10, 0, 0, 0, 0, 0],
+        "summary": "<p>Microsoft releases critical security updates for Windows and Office.</p>",
+        "content": [{"value": "<div><p>Microsoft releases critical security updates for Windows and Office.</p></div>"}]
+    },
+    {
+        "title": "CVE-2023-1234 Analysis",
+        "link": "https://blog.talosintelligence.com/2023/11/cve-2023-1234/",
+        "published_parsed": [2023, 11, 16, 14, 30, 0, 0, 0, 0],
+        "summary": "Detailed analysis of the recent Windows vulnerability.",
+        "content": [{"value": "<div><p>Detailed analysis of the recent Windows vulnerability.</p></div>"}]
+    },
+    {
+        "title": "Krebs Report on Cybercrime",
+        "link": "https://krebsonsecurity.com/2023/11/cybercrime-report/",
+        "published_parsed": [2023, 11, 18, 9, 0, 0, 0, 0, 0],
+        "summary": "Investigation into recent cybercrime trends.",
+        "content": [{"value": "<div><p>Investigation into recent cybercrime trends.</p></div>"}]
+    },
+    {
+        "title": "Recent Blog Post",
+        "link": "https://example.com/recent",
+        "published_parsed": [2023, 11, 20, 10, 0, 0, 0, 0, 0],
+        "summary": "Recent post",
+        "content": [{"value": "<div>Recent post</div>"}]
+    },
+    {
+        "title": "Old Blog Post",
+        "link": "https://example.com/old",
+        "published_parsed": [2023, 10, 1, 10, 0, 0, 0, 0, 0],
+        "summary": "Old post",
+        "content": [{"value": "<div>Old post</div>"}]
+    },
+    {
+        "title": "Blog with Content",
+        "link": "https://example.com/content",
+        "published_parsed": [2023, 11, 15, 10, 0, 0, 0, 0, 0],
+        "content": [{"value": "<div><p>Full content here</p></div>"}],
+        "summary": "Summary text"
+    },
+    {
+        "title": "Blog with Summary",
+        "link": "https://example.com/summary",
+        "published_parsed": [2023, 11, 15, 10, 0, 0, 0, 0, 0],
+        "summary": "<p>Summary content here</p>"
+    },
+    {
+        "title": "Blog with HTML",
+        "link": "https://example.com/html",
+        "published_parsed": [2023, 11, 15, 10, 0, 0, 0, 0, 0],
+        "content": [{"value": "<div><p>Content with <strong>HTML</strong> tags</p></div>"}]
+    },
+    {
+        "link": "https://example.com",
+        "published_parsed": [2023, 11, 15, 10, 0, 0, 0, 0, 0],
+        "summary": "Summary only"
+    },
+    {
+        "title": "Entry with created_parsed",
+        "link": "https://example.com/created",
+        "created_parsed": [2023, 11, 17, 8, 0, 0, 0, 0, 0]
+    }
+  ]
+}

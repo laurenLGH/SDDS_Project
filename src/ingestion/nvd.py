@@ -30,32 +30,42 @@ def get_nvd(days_back: int = DAYS_BACK) -> pd.DataFrame:
     return df
 
 
-def store_nvd(df: pd.DataFrame):
-    rows = []
-    for _, row in df.iterrows():
-        rows.append({
-            'cve_id'        : row.get('cve.id'),
-            'date_published': str(row.get('cve.published', ''))[:10],
-            'date_modified' : str(row.get('cve.lastModified', ''))[:10],
-            'description'   : next(
-                (d['value'] for d in (row.get('cve.descriptions') or []) if d.get('lang') == 'en'),
-                ''
-            ),
-            'cvss_score'    : (
-                metric[0].get('cvssData', {}).get('baseScore')
-                if isinstance(metric := row.get('cve.metrics.cvssMetricV31'), list) and metric
-                else None
-            ),
-            'cvss_severity' : (
-                metric[0].get('cvssData', {}).get('baseSeverity')
-                if isinstance(metric := row.get('cve.metrics.cvssMetricV31'), list) and metric
-                else None
-            ),
-        })
+def store_nvd(df: pd.DataFrame, db_path=DB_PATH):
+    if df.empty:
+        # Create empty DataFrame with expected schema
+        clean_df = pd.DataFrame(columns=[
+            'cve_id', 'date_published', 'date_modified', 
+            'description', 'cvss_score', 'cvss_severity'
+        ])
+    else:
+        rows = []
+        for _, row in df.iterrows():
+            if row.get('cve.id') != "":
+                rows.append({
+                    'cve_id'        : row.get('cve.id'),
+                    'date_published': str(row.get('cve.published', ''))[:10],
+                    'date_modified' : str(row.get('cve.lastModified', ''))[:10],
+                    'description'   : next(
+                        (d['value'] for d in (row.get('cve.descriptions') or []) if d.get('lang') == 'en'),
+                        ''
+                    ),
+                    'cvss_score'    : (
+                        metric[0].get('cvssData', {}).get('baseScore')
+                        if isinstance(metric := row.get('cve.metrics.cvssMetricV31'), list) and metric
+                        else None
+                    ),
+                    'cvss_severity' : (
+                        metric[0].get('cvssData', {}).get('baseSeverity')
+                        if isinstance(metric := row.get('cve.metrics.cvssMetricV31'), list) and metric
+                        else None
+                    ),
+                })
+            else:
+                continue
 
-    clean_df = pd.DataFrame(rows).dropna(subset=['cve_id'])
-
-    with sqlite3.connect(DB_PATH) as conn:
+        clean_df = pd.DataFrame(rows).dropna(subset=['cve_id'])
+    
+    with sqlite3.connect(db_path) as conn:
         clean_df.to_sql('nvd_cves', conn, if_exists='replace', index=False)
 
 if __name__ == '__main__':
