@@ -154,6 +154,7 @@ pytest --pdb
 ## Future Test Improvements
 
 - Add integration tests for end-to-end workflows
+- Add tests for the make_gold.py and make_silver.py scripts. 
 - Add performance benchmarks for large datasets
 - Add security tests for data validation
 - Add tests for API endpoints (if applicable)

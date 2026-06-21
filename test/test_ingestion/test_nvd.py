@@ -167,6 +167,7 @@ def test_store_nvd_handles_empty_vulnerabilities():
         'description', 'cvss_score', 'cvss_severity'
     ])
     
+    # This should not raise an error
     store_nvd(empty_df, db_path=TEST_DB_PATH)
     
     # Use a fresh connection for verification
@@ -186,6 +187,7 @@ def test_store_nvd_handles_empty_vulnerabilities():
         # Check row count
         result_df = pd.read_sql("SELECT * FROM nvd_cves", conn)
         assert len(result_df) == 0, "Should have 0 rows for empty DataFrame"
+    
 
 
 def test_store_nvd_drops_rows_without_cve_id():

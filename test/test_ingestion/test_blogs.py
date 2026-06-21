@@ -1,13 +1,13 @@
-import pytest
-import pandas as pd
-from unittest.mock import Mock, patch
-import sqlite3
 import json
 from pathlib import Path
 
 from src.ingestion.blogs import get_blogs, store_blogs, get_entry_date, BLOG_SOURCES
 
 DATA_DIR = Path(__file__).parent.parent / "data"
+
+"""
+Tests not written for get_blogs or store_blogs yet. 
+"""
 
 def load_feed_entries():
     """Load blog entry data from JSON file"""

@@ -1,7 +1,6 @@
 import sqlite3
 import pandas as pd
 from pathlib import Path
-import pytest
 from conftest import TEST_DB_PATH
 # Test against the actual file but use a test database
 from src.ingestion.golden_image import fetch_golden_image, store_golden_image

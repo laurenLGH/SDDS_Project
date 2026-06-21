@@ -31,13 +31,13 @@ def fetch_kev():
     return df
 
 
-def store_kev(df: pd.DataFrame):
+def store_kev(df: pd.DataFrame, db_path=DB_PATH):
     #convert any list/dict columns to JSON strings
     for col in df.columns:
         if df[col].apply(lambda x: isinstance(x, (list, dict))).any():
             df[col] = df[col].apply(lambda x: json.dumps(x) if isinstance(x, (list, dict)) else x)
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect(db_path) as conn:
         df.to_sql('kev', conn, if_exists='replace', index=False)
 
 
